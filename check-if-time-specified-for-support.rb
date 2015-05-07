@@ -1,4 +1,21 @@
-if (@issue.tracker_id == 3 && @issue.status_id == 3)
+n
+user_id = @current_journal.user_id
+rescue
+user_id = ''
+end
+
+#no journal - this is a creation
+if user_id == ''
+begin
+user_id = @issue.author_id
+rescue
+user_id = ''
+end
+end
+
+# for tracker = Support and status = Solved
+# do not perform the check for Anonymous because in that case the mail fetching will fails and the email message will be ignored
+if (@issue.tracker_id == 3 && @issue.status_id == 3 && user_id.to_s != '2')
 
 time_now_utc = Time.new.utc
 is_fresh_time_entry = false
