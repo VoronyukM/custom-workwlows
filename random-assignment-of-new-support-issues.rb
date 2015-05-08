@@ -1,7 +1,8 @@
 # check subject to except checking via custom_workflows checker
 # tracker = Support
+# status = New
 # assignee = -
-if @issue.subject.present? && @issue.tracker_id == 3 && !@issue.assigned_to_id
+if @issue.subject.present? && @issue.tracker_id == 3 && @issue.status_id == 1 && !@issue.assigned_to_id
   # assign the issue to any random Developer
   role_to_select = Role.find_by_id(4)
 
