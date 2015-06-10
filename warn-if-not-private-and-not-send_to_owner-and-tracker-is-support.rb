@@ -1,6 +1,7 @@
 @signal_label = "[This label will be removed during the next submitting. Do not delete or modify it manually!]\r"
 need_warning = false
-if !@current_journal.nil?
+# need to check if notes property is nil or not because when we modify tasks from the issues list it is.
+if !@current_journal.nil? && !@current_journal.notes.nil?
   if !@current_journal.notes.include?(@signal_label) && !@current_journal.notes.empty? && @current_journal.user_id.to_s != '2' && !@current_journal.private_notes && !@current_journal.send_to_owner && @issue.tracker_id == 3
     need_warning = true
     @current_journal.notes = @signal_label + @current_journal.notes
