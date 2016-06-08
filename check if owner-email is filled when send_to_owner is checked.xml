@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<custom-workflow>
+  <after-destroy></after-destroy>
+  <after-save></after-save>
+  <author>Voronyuk.M@3soft.ru</author>
+  <before-destroy></before-destroy>
+  <before-save>
+if !@current_journal.nil? &amp;&amp; @current_journal.send_to_owner
+  owner_email = @issue.custom_field_value( CustomField.find_by_name('owner-email') )
+  raise WorkflowError, "It's impossible to send an email to nobody! Specify the owner's email or uncheck the flag 'Send mail to supportclient'" if owner_email.blank?
+end
+</before-save>
+  <description></description>
+  <name>check if owner-email is filled when send_to_owner is checked</name>
+  <observable>issue</observable>
+  <exported-at>2016-06-08T09:54:54Z</exported-at>
+  <plugin-version>0.1.6</plugin-version>
+  <ruby-version>2.0.0-p643</ruby-version>
+  <rails-version>3.2.17</rails-version>
+</custom-workflow>
