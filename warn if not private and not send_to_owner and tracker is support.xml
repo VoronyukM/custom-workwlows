@@ -11,7 +11,15 @@ need_warning = false
 if !@current_journal.nil? &amp;&amp; !@current_journal.notes.nil?
   owner_email = @issue.custom_field_value( CustomField.find_by_name('owner-email') )
 
-  if !@current_journal.notes.include?(@signal_label) &amp;&amp; !@current_journal.notes.empty? &amp;&amp; @current_journal.user_id.to_s != '2' &amp;&amp; !@current_journal.private_notes &amp;&amp; !@current_journal.send_to_owner &amp;&amp; (@issue.tracker_id == 3 || !owner_email.blank?)
+  user_is_supportclient = false
+  roles = @current_journal.user.roles_for_project(@issue.project)
+  # user is a supportclient only if the author has assigned some role with
+  # permission treat_user_as_supportclient enabled
+  if roles.any? {|role| role.allowed_to?(:treat_user_as_supportclient) }
+    user_is_supportclient = true
+  end
+
+  if !@current_journal.notes.include?(@signal_label) &amp;&amp; !@current_journal.notes.empty? &amp;&amp; !user_is_supportclient &amp;&amp; @current_journal.user_id.to_s != '2' &amp;&amp; !@current_journal.private_notes &amp;&amp; !@current_journal.send_to_owner &amp;&amp; (@issue.tracker_id == 3 || !owner_email.blank?)
     need_warning = true
     @current_journal.notes = @signal_label + @current_journal.notes
   else
@@ -27,7 +35,7 @@ end
   <description></description>
   <name>warn if not private and not send_to_owner and tracker is support</name>
   <observable>issue</observable>
-  <exported-at>2016-06-08T10:18:17Z</exported-at>
+  <exported-at>2016-06-16T20:35:35Z</exported-at>
   <plugin-version>0.1.6</plugin-version>
   <ruby-version>2.0.0-p643</ruby-version>
   <rails-version>3.2.17</rails-version>
