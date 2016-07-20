@@ -19,7 +19,7 @@ if !@current_journal.nil? &amp;&amp; !@current_journal.notes.nil?
     user_is_supportclient = true
   end
 
-  if !@current_journal.notes.include?(@signal_label) &amp;&amp; !@current_journal.notes.empty? &amp;&amp; !user_is_supportclient &amp;&amp; @current_journal.user_id.to_s != '2' &amp;&amp; !@current_journal.private_notes &amp;&amp; !@current_journal.send_to_owner &amp;&amp; (@issue.tracker_id == 3 || !owner_email.blank?)
+  if !@current_journal.notes.include?(@signal_label) &amp;&amp; !@current_journal.notes.empty? &amp;&amp; !user_is_supportclient &amp;&amp; @current_journal.user_id.to_s != '2' &amp;&amp; !@current_journal.private_notes &amp;&amp; !@current_journal.send_to_owner &amp;&amp; (@issue.tracker_id == 3 || !owner_email.blank?) &amp;&amp; !@issue.instance_variable_defined?(:@updated_by_email)
     need_warning = true
     @current_journal.notes = @signal_label + @current_journal.notes
   else
@@ -35,7 +35,7 @@ end
   <description></description>
   <name>warn if not private and not send_to_owner and tracker is support</name>
   <observable>issue</observable>
-  <exported-at>2016-06-16T20:35:35Z</exported-at>
+  <exported-at>2016-07-20T15:16:56Z</exported-at>
   <plugin-version>0.1.6</plugin-version>
   <ruby-version>2.0.0-p643</ruby-version>
   <rails-version>3.2.17</rails-version>
