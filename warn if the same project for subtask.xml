@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<custom-workflow>
+  <after-destroy></after-destroy>
+  <after-save></after-save>
+  <author>Voronyuk.M@3soft.ru</author>
+  <before-destroy></before-destroy>
+  <before-save>@signal_label = "[This label will be removed during the next submitting. Do not delete or modify it manually!]\r"
+
+if @issue.new_record? &amp;&amp; !@issue.parent_issue_id.nil?
+  parent_issue_project = Issue.find_by_id(@issue.parent_issue_id).project
+  if @issue.project == parent_issue_project
+    if !@issue.description.include?(@signal_label)
+      need_warning = true
+      @issue.description = @signal_label + @issue.description
+    else
+      need_warning = false
+      @issue.description.sub!(@signal_label, '') 
+    end
+  elsif @issue.description.include?(@signal_label)
+    need_warning = false
+    @issue.description.sub!(@signal_label, '')  
+  end
+end
+
+if need_warning
+  raise WorkflowError, "Warning: your new subtask is in the same project as the parent task. If you are sure that all is OK just submit the issue again."
+end  
+</before-save>
+  <created-at type="datetime">2017-06-04T23:13:52Z</created-at>
+  <description></description>
+  <name>warn if the same project for subtask</name>
+  <observable>issue</observable>
+  <exported-at>2017-06-04T23:48:37Z</exported-at>
+  <plugin-version>0.1.6</plugin-version>
+  <ruby-version>2.0.0-p643</ruby-version>
+  <rails-version>3.2.17</rails-version>
+</custom-workflow>
