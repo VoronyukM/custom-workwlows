@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<custom-workflow>
+  <after-destroy></after-destroy>
+  <after-save></after-save>
+  <author>voronyuk.m@3soft.ru</author>
+  <before-destroy></before-destroy>
+  <before-save>
+@maxlength = 10000
+@signal_label = "[This label will be removed during the next submitting. Do not delete or modify it manually! (Check the comment length).]\r"
+need_warning = false
+# need to check if notes property is nil or not because when we modify tasks from the issues list it is.
+if !@current_journal.nil? &amp;&amp; !@current_journal.notes.nil? &amp;&amp; @current_journal.notes.length &gt; @maxlength
+  owner_email = @issue.custom_field_value( CustomField.find_by_name('owner-email') )
+
+  user_is_supportclient = false
+  roles = @current_journal.user.roles_for_project(@issue.project)
+  # user is a supportclient only if the author has assigned some role with
+  # permission treat_user_as_supportclient enabled
+  if roles.any? {|role| role.allowed_to?(:treat_user_as_supportclient) }
+    user_is_supportclient = true
+  end
+
+  if !@current_journal.notes.include?(@signal_label) &amp;&amp; !@current_journal.notes.empty? &amp;&amp; !user_is_supportclient &amp;&amp; @current_journal.user_id.to_s != '2' &amp;&amp; !@issue.instance_variable_defined?(:@updated_by_email)
+    need_warning = true
+    @current_journal.notes = @signal_label + @current_journal.notes
+  else
+    need_warning = false
+    @current_journal.notes.sub!(@signal_label, '') 
+    @notes_length = @current_journal.notes.length
+    @qty_truncated_symbols = @notes_length - @maxlength
+    @current_journal.notes = @current_journal.notes[0, @maxlength-1] + "... [other #{@qty_truncated_symbols} symbols was truncated]"
+  end
+end
+
+if need_warning
+  raise WorkflowError, "Warning: your note is longer than #@maxlength symbols (#{@current_journal.notes.length} symbols). Please make them shorter, else it will be truncated to #@maxlength symbols automatically."
+end  
+</before-save>
+  <created-at type="datetime">2020-09-04T06:42:27Z</created-at>
+  <description>if the comment is too long (e.g. &gt;&gt;10000 symbols), the web server may break the connection by timeout.</description>
+  <name>Check the comment length</name>
+  <observable>issue</observable>
+  <exported-at>2020-09-04T08:23:42Z</exported-at>
+  <plugin-version>0.1.6</plugin-version>
+  <ruby-version>2.0.0-p648</ruby-version>
+  <rails-version>3.2.17</rails-version>
+</custom-workflow>
