@@ -7,14 +7,22 @@
   <before-save>
 if !@current_journal.nil? &amp;&amp; @current_journal.send_to_owner
   owner_email = @issue.custom_field_value( CustomField.find_by_name('owner-email') )
-  raise WorkflowError, "It's impossible to send an email to nobody! Specify the owner's email or uncheck the flag 'Send mail to supportclient'" if owner_email.blank?
+  @warning_message = case I18n.locale.to_s
+          when 'ru'
+            "Невозможно отправить e-mail - адрес не задан! Заполните электронный адрес владельца задачи (owner_email) или снимите флаг 'Отправить e-mail клиенту поддержки'"
+          else
+            "It's impossible to send an email to nobody! Specify the owner's email or uncheck the flag 'Send mail to supportclient'"
+          end
+          
+  raise WorkflowError,  @warning_message if owner_email.blank?
 end
 </before-save>
+  <created-at type="datetime">2016-06-08T10:23:53Z</created-at>
   <description></description>
   <name>check if owner-email is filled when send_to_owner is checked</name>
   <observable>issue</observable>
-  <exported-at>2016-06-08T09:54:54Z</exported-at>
+  <exported-at>2020-09-09T12:42:50Z</exported-at>
   <plugin-version>0.1.6</plugin-version>
-  <ruby-version>2.0.0-p643</ruby-version>
+  <ruby-version>2.0.0-p648</ruby-version>
   <rails-version>3.2.17</rails-version>
 </custom-workflow>

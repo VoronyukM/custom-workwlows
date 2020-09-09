@@ -5,8 +5,16 @@
   <author>voronyuk.m@3soft.ru</author>
   <before-destroy></before-destroy>
   <before-save>
+
+
 @maxlength = 10000
-@signal_label = "[This label will be removed during the next submitting. Do not delete or modify it manually! (Check the comment length).]\r"
+@signal_label = case I18n.locale.to_s
+          when 'ru'
+            "[Этот текст будет удален автоматически при следующем нажатии Создать. Не удаляйте его вручную! (Проверка длины комментария, см. предупреждение выше).]\r"
+          else
+            "[This label will be removed during the next submitting. Do not delete or modify it manually! (Check the comment length, see warning above).]\r"
+          end
+
 need_warning = false
 # need to check if notes property is nil or not because when we modify tasks from the issues list it is.
 if !@current_journal.nil? &amp;&amp; !@current_journal.notes.nil? &amp;&amp; @current_journal.notes.length &gt; @maxlength
@@ -28,19 +36,33 @@ if !@current_journal.nil? &amp;&amp; !@current_journal.notes.nil? &amp;&amp; @cu
     @current_journal.notes.sub!(@signal_label, '') 
     @notes_length = @current_journal.notes.length
     @qty_truncated_symbols = @notes_length - @maxlength
-    @current_journal.notes = @current_journal.notes[0, @maxlength-1] + "... [other #{@qty_truncated_symbols} symbols was truncated]"
+    @current_journal.notes = @current_journal.notes[0, @maxlength-1] + case I18n.locale.to_s
+          when 'ru'
+            "... [оставшиеся #{@qty_truncated_symbols} символа были усечены]"
+          else 
+            "... [other #{@qty_truncated_symbols} symbols was truncated]"
+          end
+          
   end
 end
 
 if need_warning
-  raise WorkflowError, "Warning: your note is longer than #@maxlength symbols (#{@current_journal.notes.length} symbols). Please make them shorter, else it will be truncated to #@maxlength symbols automatically."
+
+  @warning_message = case I18n.locale.to_s
+          when 'ru'
+            "Предупреждение: Ваш комментарий длиннее #@maxlength символов (#{@current_journal.notes.length} символа). Пожалуйста, сократите его, иначе он будет усечен до #@maxlength символа автоматически."
+          else
+            "Warning: your note is longer than #@maxlength symbols (#{@current_journal.notes.length} symbols). Please make them shorter, else it will be truncated to #@maxlength symbols automatically. (debug info: locale = " + I18n.locale.to_s + ")"
+          end
+          
+  raise WorkflowError, @warning_message
 end  
 </before-save>
   <created-at type="datetime">2020-09-04T06:42:27Z</created-at>
   <description>if the comment is too long (e.g. &gt;&gt;10000 symbols), the web server may break the connection by timeout.</description>
   <name>Check the comment length</name>
   <observable>issue</observable>
-  <exported-at>2020-09-04T08:23:42Z</exported-at>
+  <exported-at>2020-09-09T12:43:02Z</exported-at>
   <plugin-version>0.1.6</plugin-version>
   <ruby-version>2.0.0-p648</ruby-version>
   <rails-version>3.2.17</rails-version>

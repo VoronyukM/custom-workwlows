@@ -4,7 +4,15 @@
   <after-save></after-save>
   <author>Voronyuk.M@3soft.ru</author>
   <before-destroy></before-destroy>
-  <before-save>@signal_label = "[This label will be removed during the next submitting. Do not delete or modify it manually!]\r"
+  <before-save>
+@signal_label = case I18n.locale.to_s
+          when 'ru'
+            "[Этот текст будет удален автоматически при следующем нажатии Создать. Не удаляйте его вручную! (Проверка проекта в новой подзадаче, см. предупреждение выше).]\r"
+          else
+            "[This label will be removed during the next submitting. Do not delete or modify it manually! (Check the project for the new subtask, see warning above).]\r"
+          end
+
+need_warning = false
 
 if @issue.new_record? &amp;&amp; !@issue.parent_issue_id.nil?
   parent_issue_project = Issue.find_by_id(@issue.parent_issue_id).project
@@ -23,15 +31,21 @@ if @issue.new_record? &amp;&amp; !@issue.parent_issue_id.nil?
 end
 
 if need_warning
-  raise WorkflowError, "Warning: your new subtask is in the same project as the parent task. If you are sure that all is OK just submit the issue again."
+  @warning_message = case I18n.locale.to_s
+          when 'ru'
+            "Предупреждение: Вы пытаетесь создать подзадачу в том же проекте, что задан для родительской задачи. Если Вы уверены, что так и требуется, просто нажмите Создать еще раз."
+          else
+            "Warning: your new subtask is in the same project as the parent task. If you are sure that all is OK just submit the issue again."
+          end
+  raise WorkflowError, @warning_message
 end  
 </before-save>
   <created-at type="datetime">2017-06-04T23:13:52Z</created-at>
   <description></description>
   <name>warn if the same project for subtask</name>
   <observable>issue</observable>
-  <exported-at>2017-06-04T23:48:37Z</exported-at>
+  <exported-at>2020-09-09T12:42:58Z</exported-at>
   <plugin-version>0.1.6</plugin-version>
-  <ruby-version>2.0.0-p643</ruby-version>
+  <ruby-version>2.0.0-p648</ruby-version>
   <rails-version>3.2.17</rails-version>
 </custom-workflow>
